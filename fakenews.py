@@ -47,17 +47,17 @@ def frequent_tokens(df, col_name, graph_size):
 
 def data_exploration(data):
 
-    print(data.isna().sum())
+    # print(data.isna().sum())
     # plotting the number of nan values in the dataframe
     # data.isna().sum().plot(kind="bar")
     # plt.show()
 
-    print(data.groupby(['subject'])['text'].count())
+    # print(data.groupby(['subject'])['text'].count())
     # plotting the subject types and their sample size
     # data.groupby(['subject'])['text'].count().plot(kind="bar")
     # plt.show()
 
-    print(data.groupby(['target'])['text'].count())
+    # print(data.groupby(['target'])['text'].count())
     # plotting the number of samples in both fake and real classes
     # data.groupby(['target'])['text'].count().plot(kind="bar")
     # plt.show()
@@ -96,23 +96,26 @@ def logistic_regression(x_train,y_train,x_test,y_test):
     # Accuracy
     prediction = model.predict(x_test)
     print("accuracy: {}%".format(round(metrics.accuracy_score(y_test, prediction) * 100, 2)))
+    print(metrics.confusion_matrix(y_test, prediction))
 
     # confusion matrix
-    cm = metrics.confusion_matrix(y_test, prediction)
-    plot_confusion_matrix(cm, classes=['Fake', 'Real'])
+    # cm = metrics.confusion_matrix(y_test, prediction)
+    # plot_confusion_matrix(cm, classes=['Fake', 'Real'])
 
 def decisiontree_classifier(x_train,y_train,x_test,y_test):
 
     # Vectorizing and applying TF-IDF
-    pipe = Pipeline([('vect', CountVectorizer()),('tfidf', TfidfTransformer()),('model', DecisionTreeClassifier(criterion='entropy',max_depth=20,splitter='best'))])
+    pipe = Pipeline([('vect', CountVectorizer()),('tfidf', TfidfTransformer()),('model', DecisionTreeClassifier(criterion='entropy',max_depth=2,splitter='random'))])
 
     # Fitting the model
     model = pipe.fit(x_train, y_train)
 
     # Accuracy
     prediction = model.predict(x_test)
-    print("accuracy: {}%".format(round(metrics.accuracy_score(y_test, prediction) * 100, 2)))
 
+    print("accuracy: {}%".format(round(metrics.accuracy_score(y_test, prediction) * 100, 2)))
+    print(metrics.confusion_matrix(y_test, prediction))
+    #
     # confusion matrix
     cm = metrics.confusion_matrix(y_test, prediction)
     plot_confusion_matrix(cm, classes=['Fake', 'Real'])
@@ -136,16 +139,17 @@ def Main():
     data = shuffle(data)
     data = data.reset_index(drop=True)
 
+
     # clean the text: lower,stop_words and punctuation
     data = clean_text(data,'text')
-
+    #
     # explore the data
     # data_exploration(data)
-
+    #
     x_train, x_test, y_train, y_test = train_test_split(data['text'], data.target, test_size=0.2)
-
+    #
     # logistic_regression(x_train,y_train,x_test,y_test)
-
+    #
     decisiontree_classifier(x_train,y_train,x_test,y_test)
 
 if __name__ == "__main__":
